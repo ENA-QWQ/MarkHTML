@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarkHTML - Markdown to HTML Converter</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css" id="hljs-theme">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="main">
+    <div class="panel input-panel">
+      <div class="input-toolbar">
+        <div class="toolbar-row">
+          <select id="theme-select" title="Theme">
+            <optgroup label="Light">
+              <option value="github-light">GitHub</option>
+              <option value="academic">Academic</option>
+              <option value="one-light">One Light</option>
+              <option value="gruvbox-light">Gruvbox</option>
+              <option value="catppuccin-latte">Catppuccin</option>
+              <option value="material-light">Material</option>
+              <option value="ayu-light">Ayu</option>
+              <option value="quiet-light">Quiet</option>
+            </optgroup>
+            <optgroup label="Dark">
+              <option value="github-dark">GitHub Dark</option>
+              <option value="github-dimmed">GitHub Dimmed</option>
+              <option value="nord">Nord</option>
+              <option value="monokai">Monokai</option>
+              <option value="one-dark">One Dark</option>
+              <option value="tokyo-night">Tokyo Night</option>
+              <option value="gruvbox-dark">Gruvbox Dark</option>
+              <option value="catppuccin-mocha">Catppuccin Dark</option>
+              <option value="material-dark">Material Dark</option>
+              <option value="ayu-dark">Ayu Dark</option>
+              <option value="night-owl">Night Owl</option>
+              <option value="panda">Panda</option>
+            </optgroup>
+          </select>
+          <select id="highlight-select" title="Code Highlight">
+            <option value="github">GitHub</option>
+            <option value="github-dark">GitHub Dark</option>
+            <option value="monokai">Monokai</option>
+            <option value="atom-one-dark">Atom One Dark</option>
+            <option value="atom-one-light">Atom One Light</option>
+            <option value="nord">Nord</option>
+            <option value="tokyo-night">Tokyo Night</option>
+          </select>
+          <label class="checkbox-label" title="Show line numbers">
+            <input type="checkbox" id="line-numbers" checked>
+            <span>Lines</span>
+          </label>
+          <div class="toolbar-spacer"></div>
+          <button id="style-settings-btn" class="btn-sm" title="Style settings">Style</button>
+          <button id="copy-btn" class="btn-sm" title="Copy HTML">Copy</button>
+          <button id="download-btn" class="btn-sm btn-primary" title="Download HTML">Download</button>
+          <button id="clear-btn" class="btn-sm" title="Clear content">Clear</button>
+          <button id="about-btn" class="btn-sm" title="About">About</button>
+        </div>
+      </div>
+      <div id="editor-container"></div>
+    </div>
+    <div class="panel output-panel">
+      <div class="output-main-tabs">
+        <button class="output-main-tab active" data-view="preview">Preview</button>
+        <button class="output-main-tab" data-view="source">Source</button>
+      </div>
+      <div class="output-views">
+        <div id="preview-view" class="output-view active">
+          <div id="html-preview" class="html-preview"></div>
+        </div>
+        <div id="source-view" class="output-view">
+          <div class="source-tabs">
+            <button class="source-tab active" data-tab="html">HTML</button>
+            <button class="source-tab" data-tab="css">CSS</button>
+          </div>
+          <div class="source-editors">
+            <div id="html-editor-container" class="source-editor-container active"></div>
+            <div id="css-editor-container" class="source-editor-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Style Settings Modal -->
+  <div id="style-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Style Settings</h3>
+        <button id="close-style-modal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="colors">Colors</button>
+        <button class="modal-tab" data-tab="spacing">Spacing</button>
+      </div>
+      <div class="modal-body">
+        <!-- Colors -->
+        <div id="tab-colors" class="tab-content active">
+          <div class="style-section">
+            <h4>Base Colors</h4>
+            <div class="style-row">
+              <label>Background</label>
+              <input type="color" id="custom-bg-base" value="#ffffff">
+              <input type="text" id="custom-bg-base-text" value="#ffffff" style="width: 80px; padding: 4px 8px; font-family: var(--font-code); font-size: 0.75rem;">
+            </div>
+            <div class="style-row">
+              <label>Text</label>
+              <input type="color" id="custom-text-base" value="#24292f">
+              <input type="text" id="custom-text-base-text" value="#24292f" style="width: 80px; padding: 4px 8px; font-family: var(--font-code); font-size: 0.75rem;">
+            </div>
+            <div class="style-row">
+              <label>Surface</label>
+              <input type="color" id="custom-bg-surface" value="#f6f8fa">
+              <input type="text" id="custom-bg-surface-text" value="#f6f8fa" style="width: 80px; padding: 4px 8px; font-family: var(--font-code); font-size: 0.75rem;">
+            </div>
+          </div>
+          <div class="style-section">
+            <h4>Accent Colors</h4>
+            <div class="style-row">
+              <label>Primary</label>
+              <input type="color" id="custom-accent" value="#0969da">
+              <input type="text" id="custom-accent-text" value="#0969da" style="width: 80px; padding: 4px 8px; font-family: var(--font-code); font-size: 0.75rem;">
+            </div>
+            <div class="style-row">
+              <label>Heading</label>
+              <input type="color" id="custom-heading" value="#1f2328">
+              <input type="text" id="custom-heading-text" value="#1f2328" style="width: 80px; padding: 4px 8px; font-family: var(--font-code); font-size: 0.75rem;">
+            </div>
+            <div class="style-row">
+              <label>Link</label>
+              <input type="color" id="custom-link-color" value="#0969da">
+              <input type="text" id="custom-link-color-text" value="#0969da" style="width: 80px; padding: 4px 8px; font-family: var(--font-code); font-size: 0.75rem;">
+            </div>
+          </div>
+          <div class="style-section">
+            <h4>Code Colors</h4>
+            <div class="style-row">
+              <label>Background</label>
+              <input type="color" id="custom-code-bg" value="#f6f8fa">
+              <input type="text" id="custom-code-bg-text" value="#f6f8fa" style="width: 80px; padding: 4px 8px; font-family: var(--font-code); font-size: 0.75rem;">
+            </div>
+            <div class="style-row">
+              <label>Text</label>
+              <input type="color" id="custom-code-text" value="#24292f">
+              <input type="text" id="custom-code-text-text" value="#24292f" style="width: 80px; padding: 4px 8px; font-family: var(--font-code); font-size: 0.75rem;">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Spacing -->
+        <div id="tab-spacing" class="tab-content">
+          <div class="style-section">
+            <h4>Spacing Settings</h4>
+            <div class="style-row">
+              <label>Paragraph</label>
+              <input type="range" id="style-paragraph-spacing" min="8" max="32" value="16">
+              <span id="style-paragraph-spacing-value">16px</span>
+            </div>
+            <div class="style-row">
+              <label>Content Width</label>
+              <input type="range" id="style-max-width" min="600" max="1400" step="50" value="900">
+              <span id="style-max-width-value">900px</span>
+            </div>
+          </div>
+          <div class="style-section">
+            <h4>Font Size</h4>
+            <div class="style-row">
+              <label>Base Size</label>
+              <input type="range" id="style-font-size" min="12" max="24" value="16">
+              <span id="style-font-size-value">16px</span>
+            </div>
+            <div class="style-row">
+              <label>Line Height</label>
+              <input type="range" id="style-line-height" min="1.4" max="2.2" step="0.1" value="1.7">
+              <span id="style-line-height-value">1.7</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="reset-style" class="btn btn-secondary">Reset</button>
+        <button id="apply-style" class="btn btn-primary">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Modal -->
+  <div id="about-modal" class="modal">
+    <div class="modal-content about-modal-content">
+      <div class="modal-header">
+        <h3>About MarkHTML</h3>
+        <button id="close-about-modal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body about-body">
+        <div class="about-section">
+          <h4>MarkHTML</h4>
+          <p>An online Markdown to HTML converter with multiple themes and syntax highlighting support.</p>
+        </div>
+        <div class="about-section">
+          <h4>Author</h4>
+          <p><a href="https://enashpinal.pages.dev" target="_blank" rel="noopener">ENA</a></p>
+        </div>
+        <div class="about-section">
+          <h4>GitHub</h4>
+          <p><a href="https://github.com/ENA-QWQ/MarkHTML" target="_blank" rel="noopener">github.com/ENA-QWQ/MarkHTML</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-task-lists@2.1.1/dist/markdown-it-task-lists.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-footnote@4.0.0/dist/markdown-it-footnote.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-mark@4.0.0/dist/markdown-it-mark.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-sub@2.0.0/dist/markdown-it-sub.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-sup@2.0.0/dist/markdown-it-sup.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-deflist@3.0.0/dist/markdown-it-deflist.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-attrs@4.1.6/dist/markdown-it-attrs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it-container@4.0.0/dist/markdown-it-container.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
