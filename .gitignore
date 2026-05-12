@@ -1,33 +1,5 @@
-# Dependencies
-node_modules/
-
-# Build output
+.gitignore
+server.js
 .wrangler/
-dist/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# Logs
-*.log
-npm-debug.log*
-
-# Temporary files
-*.tmp
-*.temp
-.cache/
-
-# Local development
-.dev.vars
+.git/
+.node_modules/
